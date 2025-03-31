@@ -5,7 +5,7 @@
     snack 200 dup(0)    
     head_x equ 5         
     head_y equ 3         
-    direction db 1          
+    direction db 1       
 .code
 start:
     mov ax, @data
@@ -18,12 +18,10 @@ start:
     mov [snack+5], 3      
 
 mainLoop:
-    call eraseOldSnack
-        
-    
+    call eraseOldTail  
+    call moveSnack  
+    call drawSnack  
     call readKey  
-    call moveSnack      
-    call drawSnack      
     jmp mainLoop
 
 readKey:
@@ -50,7 +48,7 @@ readKey:
 checkNormalKey:
     cmp al, 1Bh   
     je exitProgram
-doneReadKey:
+    doneReadKey:
     ret
 
 exitProgram:
@@ -106,38 +104,39 @@ moveUpHead:
     dec byte ptr [snack+1]
     ret
 
-eraseOldSnack:
+eraseOldTail:
     mov ah, 02h
     mov bh, 0
-    mov dh, [snack+1]
-    mov dl, [snack]
+    mov dh, [snack + (s_size * 2) - 1]  
+    mov dl, [snack + (s_size * 2) - 2]  
     int 10h
     mov ah, 09h
     mov al, ' '
     mov bl, 0FH
     mov cx, 1
     int 10h
-
-    mov si, 2
-eraseBody:
-    cmp si, s_size * 2
-    jge doneErase
-    mov ah, 02h
-    mov bh, 0
-    mov dh, [snack + si + 1]
-    mov dl, [snack + si]
-    int 10h
-    mov ah, 09h
-    mov al, ' '
-    mov bl, 0FH
-    mov cx, 1
-    int 10h
-    add si, 2
-    jmp eraseBody
-doneErase:
     ret
 
 drawSnack:  
+    mov si, s_size * 2
+
+drawBody:
+    cmp si, 2
+    jl drawHead
+    mov ah, 02h
+    mov bh, 0
+    mov dh, [snack + si - 1]
+    mov dl, [snack + si - 2]
+    int 10h
+    mov ah, 09h
+    mov al, '*'
+    mov bl, 0FH
+    mov cx, 1
+    int 10h
+    sub si, 2
+    jmp drawBody
+
+drawHead:
     mov ah, 02h
     mov bh, 0
     mov dh, [snack+1]
@@ -148,24 +147,5 @@ drawSnack:
     mov bl, 0FH
     mov cx, 1
     int 10h
-
-    mov si, 2
-drawBody:
-    cmp si, s_size * 2
-    jge doneDraw
-    mov ah, 02h
-    mov bh, 0
-    mov dh, [snack + si + 1]
-    mov dl, [snack + si]
-    int 10h
-    mov ah, 09h
-    mov al, '*'
-    mov bl, 0FH
-    mov cx, 1
-    int 10h
-    add si, 2
-    jmp drawBody
-    
-doneDraw: 
     ret
 end start
