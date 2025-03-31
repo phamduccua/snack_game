@@ -6,7 +6,7 @@ main proc
     mov ax,@data
     mov ds,ax
     
-    call border3
+    call border2
     mov ah,4ch
     int 21h
     
@@ -69,9 +69,9 @@ border2 proc
     mov bh,0FFh 
        
     mov ch,1
-    mov cl,5
+    mov cl,0
     mov dh,1
-    mov dl,75
+    mov dl,80
     int 10h 
 
     mov ch,5
