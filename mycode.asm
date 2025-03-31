@@ -56,16 +56,26 @@ exitProgram:
     int 21h
 
 moveRight:
+    cmp direction, 3
+    je conitnue
     mov direction, 1  
     ret
-moveDown:
+moveDown: 
+    cmp direction, 4
+    je  conitnue
     mov direction, 2
     ret
 moveLeft:
+    cmp direction, 1
+    je conitnue
     mov direction, 3
     ret
 moveUp:
+    cmp direction, 2
+    je conitnue
     mov direction, 4
+    ret
+conitnue:
     ret
 
 moveSnack:    
