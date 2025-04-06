@@ -10,12 +10,13 @@
     snack 200 dup(0)    
     head_x equ 5         
     head_y equ 3         
-    direction db 1       
+    direction db 1
+    gameOverMsg db 'GAME OVER!', 0Dh, 0Ah, '$'       
 .code
 start:
     mov ax, @data
     mov ds, ax 
-    call border3 
+    call border1 
     mov [snack], head_x
     mov [snack+1], head_y
     mov [snack+2], 4
@@ -26,9 +27,11 @@ start:
 mainLoop:
     
     call eraseOldTail  
-    call moveSnack  
+    call moveSnack 
+     
     call drawSnack  
-    call readKey  
+    call readKey
+    call checkWallCollision    
     jmp mainLoop
 
 readKey:
@@ -86,7 +89,8 @@ conitnue:
     ret
 
 moveSnack:    
-    mov si, s_size * 2 - 2  
+    mov si, s_size * 2 - 2
+      
 moveBody:   
     cmp si, 1 
     jl doneMove
@@ -245,5 +249,54 @@ border4 proc
         cmp si,151
         jl draw_walls3
 ret
-endp
+endp  
+checkWallCollision:
+    
+    mov al, [snack]     
+    mov bl, [snack+1]    
+
+    lea si, index1      
+    mov cx, (16 / 4)     
+
+collisionLoop:
+    mov dh, [si]         
+    mov dl, [si+1]       
+    mov ah, [si+2]       
+    mov bh, [si+3]       
+
+   
+    cmp bl, dh
+    jg nextWall
+    cmp bl, ah
+    jl nextWall
+
+    
+    cmp al, dl
+    jg nextWall
+    cmp al, bh
+    jl nextWall
+
+   
+    call game_over
+
+nextWall:
+    add si, 4            
+    loop collisionLoop   
+
+    ret 
+game_over:
+    mov ah, 02h          
+    mov bh, 0
+    mov dh, 12          
+    mov dl, 30           
+    int 10h
+
+    mov ah, 09h          
+    lea dx, gameOverMsg
+    int 21h
+
+    mov ah, 4Ch         
+    int 21h  
+                 
+
 end start
