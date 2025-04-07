@@ -3,9 +3,10 @@
 .data
     index1 db 1,0,1,80,3,0,24,0,24,0,24,79,1,79,24,79
     index2 db 1,0,1,80,3,0,24,0,24,0,24,79,1,79,24,79,5,10,10,10,10,10,10,40,5,40,10,40,15,30,20,35
-    index3 db 1,5,1,75,5,10,10,10,10,10,10,40,5,40,10,40,15,30,20,35,5,50,5,70,5,70,15,70,15,70,15,55,15,55,10,55,24,0,24,79,1,0,24,0,1,79,24,79,12,2,12,3,22,77,22,78
+    index3 db 1,0,1,79,5,10,10,10,10,10,10,40,5,40,10,40,15,30,20,35,5,50,5,70,5,70,15,70,15,70,15,55,15,55,10,55,24,0,24,79,1,0,24,0,1,79,24,79,12,2,12,3,22,77,22,78
     index4 db 1,0,1,79,24,0,24,79,1,0,24,0,1,79,24,79,5,10,5,60,15,20,15,70,10,30,20,30,8,50,18,50,12,2,12,3,22,77,22,78,6,5,6,6,18,74,18,75
-    count dw 4
+    count dw 4 
+
     s_size equ 3        
     snack 200 dup(0)    
     head_x equ 5         
@@ -16,7 +17,7 @@
 start:
     mov ax, @data
     mov ds, ax 
-    call border1 
+    call border3
     mov [snack], head_x
     mov [snack+1], head_y
     mov [snack+2], 4
@@ -30,7 +31,7 @@ mainLoop:
     call moveSnack 
      
     call drawSnack  
-    call readKey
+    call readKey          
     call checkWallCollision    
     jmp mainLoop
 
@@ -255,8 +256,8 @@ checkWallCollision:
     mov al, [snack]     
     mov bl, [snack+1]    
 
-    lea si, index1      
-    mov cx, (16 / 4)     
+    lea si, index3      
+    mov cx, (56 / 4)     
 
 collisionLoop:
     mov dh, [si]         
@@ -266,15 +267,15 @@ collisionLoop:
 
    
     cmp bl, dh
-    jg nextWall
+    jb nextWall
     cmp bl, ah
-    jl nextWall
+    ja nextWall
 
     
     cmp al, dl
-    jg nextWall
+    jb nextWall
     cmp al, bh
-    jl nextWall
+    ja nextWall
 
    
     call game_over
