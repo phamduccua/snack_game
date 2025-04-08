@@ -1,0 +1,86 @@
+ORG 100h  ; Ch?y ? ch? d? .COM
+
+; ========== BI?N TOÀN C?C ==========
+FOOD_X       DB 0       ; To? d? X (c?t)
+FOOD_Y       DB 0       ; To? d? Y (hàng)
+FOOD_ICON    DB 0       ; Ký t? d?i di?n cho th?c an
+FOOD_COLOR   DB 0       ; Màu s?c
+
+; ========== CODE B?T Ð?U ==========
+START:
+    ; Chuy?n v? ch? d? van b?n 80x25
+    MOV AX, 03h
+    INT 10h
+
+    CALL GENERATE_RANDOM_FOOD
+    CALL DISPLAY_FOOD
+
+    ; Ch? ngu?i dùng nh?n phím
+    MOV AH, 0
+    INT 16h
+
+    INT 20h  ; K?t thúc chuong trình
+
+; ========== T?O TH?C AN NG?U NHIÊN ==========
+GENERATE_RANDOM_FOOD PROC
+    ; L?y th?i gian h? th?ng làm seed
+    MOV AH, 00h
+    INT 1Ah         ; DL = count of clock ticks
+    MOV AL, DL      ; AL = seed
+
+    ; Tính ng?u nhiên X: 0–79
+    MOV AH, 0
+    MOV BL, 80
+    DIV BL
+    MOV FOOD_X, AH
+
+    ; Tính ng?u nhiên Y: 0–24
+    MOV AL, DL
+    MOV AH, 0
+    MOV BL, 25
+    DIV BL
+    MOV FOOD_Y, AH
+
+    ; Tính ng?u nhiên lo?i th?c an d?a trên DL
+    MOV AL, DL
+    CMP AL, 25
+    JLE SET_DIAMOND
+
+    CMP AL, 55
+    JLE SET_GOLD
+
+    ; M?c d?nh: B?c (60%)
+    MOV FOOD_ICON, 127    ; Hình tam giác ho?c d?c bi?t
+    MOV FOOD_COLOR, 8     ; Màu xám (b?c)
+    RET
+
+SET_GOLD:
+    MOV FOOD_ICON, 254    ; Hình thoi (¦)
+    MOV FOOD_COLOR, 14    ; Màu vàng
+    RET
+
+SET_DIAMOND:
+    MOV FOOD_ICON, 4      ; Bi?u tu?ng kim cuong (?)
+    MOV FOOD_COLOR, 15    ; Tr?ng sáng
+    RET
+GENERATE_RANDOM_FOOD ENDP
+
+; ========== HI?N TH? TH?C AN ==========
+DISPLAY_FOOD PROC
+    ; Ð?t con tr? t?i v? trí (Y, X)
+    MOV AH, 02h
+    MOV BH, 0
+    MOV DH, FOOD_Y
+    MOV DL, FOOD_X
+    INT 10h
+
+    ; In ký t?
+    MOV AH, 09h
+    MOV AL, FOOD_ICON
+    MOV BL, FOOD_COLOR
+    MOV CX, 1
+    INT 10h
+    RET
+DISPLAY_FOOD ENDP
+
+END START
