@@ -1,313 +1,93 @@
-.model small
-.stack 100h
-.data
-    index1 db 1,0,1,80,3,0,24,0,24,0,24,79,1,79,24,79
-    index2 db 1,0,1,80,3,0,24,0,24,0,24,79,1,79,24,79,5,10,10,10,10,10,10,40,5,40,10,40,15,30,20,35
-    index3 db 1,0,1,79,5,10,10,10,10,10,10,40,5,40,10,40,15,30,20,35,5,50,5,70,5,70,15,70,15,70,15,55,15,55,10,55,24,0,24,79,1,0,24,0,1,79,24,79,12,2,12,3,22,77,22,78
-    index4 db 1,0,1,79,24,0,24,79,1,0,24,0,1,79,24,79,5,10,5,60,15,20,15,70,10,30,20,30,8,50,18,50,12,2,12,3,22,77,22,78,6,5,6,6,18,74,18,75
-    count dw 4 
+ORG 100h  ; Ch?y ? ch? d? .COM
 
-    s_size equ 3        
-    snack 200 dup(0)    
-    head_x equ 5         
-    head_y equ 3         
-    direction db 1
-    gameOverMsg db 'GAME OVER!', 0Dh, 0Ah, '$'       
-.code
-start:
-    mov ax, @data
-    mov ds, ax 
-    call border3
-    mov [snack], head_x
-    mov [snack+1], head_y
-    mov [snack+2], 4
-    mov [snack+3], 3
-    mov [snack+4], 3
-    mov [snack+5], 3      
+; ========== BI?N TOÀN C?C ==========
+FOOD_X       DB 0       ; To? d? X (c?t)
+FOOD_Y       DB 0       ; To? d? Y (hàng)
+FOOD_ICON    DB 0       ; Ký t? d?i di?n cho th?c an
+FOOD_COLOR   DB 0       ; Màu s?c
 
+; ========== CODE B?T Ð?U ==========
+START:
+    ; Chuy?n v? ch? d? van b?n 80x25
+    MOV AX, 03h
+    INT 10h
 
-;ve ran va di chuyen
-mainLoop:
-    
-    call eraseOldTail  
-    call moveSnack 
-     
-    call drawSnack  
-    call readKey          
-    call checkWallCollision    
-    jmp mainLoop
+    CALL GENERATE_RANDOM_FOOD
+    CALL DISPLAY_FOOD
 
-readKey:
-    mov ah, 01h   
-    int 16h
-    jz doneReadKey  
+    ; Ch? ngu?i dùng nh?n phím
+    MOV AH, 0
+    INT 16h
 
-    mov ah, 00h
-    int 16h
+    INT 20h  ; K?t thúc chuong trình
 
-    cmp al, 00h   
-    jne checkNormalKey
+; ========== T?O TH?C AN NG?U NHIÊN ==========
+GENERATE_RANDOM_FOOD PROC
+    ; L?y th?i gian h? th?ng làm seed
+    MOV AH, 00h
+    INT 1Ah         ; DL = count of clock ticks
+    MOV AL, DL      ; AL = seed
 
-    cmp ah, 48h   
-    je moveUp
-    cmp ah, 50h   
-    je moveDown
-    cmp ah, 4Bh   
-    je moveLeft
-    cmp ah, 4Dh   
-    je moveRight
-    ret
+    ; Tính ng?u nhiên X: 0–79
+    MOV AH, 0
+    MOV BL, 80
+    DIV BL
+    MOV FOOD_X, AH
 
-checkNormalKey:
-    cmp al, 1Bh   
-    je exitProgram
-    doneReadKey:
-    ret
+    ; Tính ng?u nhiên Y: 0–24
+    MOV AL, DL
+    MOV AH, 0
+    MOV BL, 25
+    DIV BL
+    MOV FOOD_Y, AH
 
-exitProgram:
-    mov ax, 4C00h
-    int 21h
+    ; Tính ng?u nhiên lo?i th?c an d?a trên DL
+    MOV AL, DL
+    CMP AL, 25
+    JLE SET_DIAMOND
 
-moveRight:
-    cmp direction, 3
-    je conitnue
-    mov direction, 1  
-    ret
-moveDown: 
-    cmp direction, 4
-    je  conitnue
-    mov direction, 2
-    ret
-moveLeft:
-    cmp direction, 1
-    je conitnue
-    mov direction, 3
-    ret
-moveUp:
-    cmp direction, 2
-    je conitnue
-    mov direction, 4
-    ret
-conitnue:
-    ret
+    CMP AL, 55
+    JLE SET_GOLD
 
-moveSnack:    
-    mov si, s_size * 2 - 2
-      
-moveBody:   
-    cmp si, 1 
-    jl doneMove
-    mov al, [snack + si - 2]  
-    mov [snack + si], al      
-    mov al, [snack + si - 1]   
-    mov [snack + si + 1], al   
-    sub si, 2
-    jmp moveBody
-        
-doneMove: 
-    cmp direction, 1
-    je moveRightHead
-    cmp direction, 2
-    je moveDownHead
-    cmp direction, 3
-    je moveLeftHead
-    cmp direction, 4
-    je moveUpHead
-    ret
+    ; M?c d?nh: B?c (60%)
+    MOV FOOD_ICON, 127    ; Hình tam giác ho?c d?c bi?t
+    MOV FOOD_COLOR, 8     ; Màu xám (b?c)
+    RET
 
-moveRightHead:
-    inc byte ptr [snack]
-    ret
-moveDownHead:
-    inc byte ptr [snack+1]
-    ret
-moveLeftHead:
-    dec byte ptr [snack]
-    ret
-moveUpHead:
-    dec byte ptr [snack+1]
-    ret
+SET_GOLD:
+    MOV FOOD_ICON, 254    ; Hình thoi (¦)
+    MOV FOOD_COLOR, 14    ; Màu vàng
+    RET
 
-eraseOldTail:
-    mov ah, 02h
-    mov bh, 0
-    mov dh, [snack + (s_size * 2) - 1]  
-    mov dl, [snack + (s_size * 2) - 2]  
-    int 10h
-    mov ah, 09h
-    mov al, ' '
-    mov bl, 0FH
-    mov cx, 1
-    int 10h
-    ret
+SET_DIAMOND:
+    MOV FOOD_ICON, 4      ; Bi?u tu?ng kim cuong (?)
+    MOV FOOD_COLOR, 15    ; Tr?ng sáng
+    RET
+GENERATE_RANDOM_FOOD ENDP
 
-drawSnack:  
-    mov si, s_size * 2
+; ========== HI?N TH? TH?C AN ==========
+DISPLAY_FOOD PROC
+    ; Ð?t con tr? t?i v? trí (Y, X)
+    MOV AH, 02h
+    MOV BH, 0
+    MOV DH, FOOD_Y
+    MOV DL, FOOD_X
+    INT 10h
 
-drawBody:
-    cmp si, 2
-    jl drawHead
-    mov ah, 02h
-    mov bh, 0
-    mov dh, [snack + si - 1]
-    mov dl, [snack + si - 2]
-    int 10h
-    mov ah, 09h
-    mov al, '*'
-    mov bl, 0FH
-    mov cx, 1
-    int 10h
-    sub si, 2
-    jmp drawBody
+    ; In ký t?
+    MOV AH, 09h
+    MOV AL, FOOD_ICON
+    MOV BL, FOOD_COLOR
+    MOV CX, 1
+    INT 10h
+    RET
+DISPLAY_FOOD ENDP
 
-drawHead:
-    mov ah, 02h
-    mov bh, 0
-    mov dh, [snack+1]
-    mov dl, [snack]
-    int 10h
-    mov ah, 09h
-    mov al, 'O'
-    mov bl, 0FH
-    mov cx, 1
-    int 10h
-    ret 
-    
-    
-    
-;ve border
-;call border
-border1 proc
-    mov ah, 0
-    mov al, 3
-    int 10h
-
-    lea si, index1
-    draw_walls:
-        mov ch, [si]      
-        mov cl, [si+1]    
-        mov dh, [si+2]    
-        mov dl, [si+3]    
-        add si, 4            
-        mov ah, 6        
-        mov al, 0         
-        mov bh, 0FFh      
-        int 10h            
-        cmp si,17
-        jl draw_walls
-ret  
-endp
-border2 proc
-    mov ah, 0
-    mov al, 3
-    int 10h
-
-    lea si, index2
-    draw_walls1:
-        mov ch, [si]      
-        mov cl, [si+1]    
-        mov dh, [si+2]    
-        mov dl, [si+3]    
-        add si, 4            
-        mov ah, 6        
-        mov al, 0         
-        mov bh, 0FFh      
-        int 10h            
-        cmp si,48
-        jl draw_walls1
-ret
-endp
-border3 proc
-    mov ah, 0
-    mov al, 3
-    int 10h
-
-    lea si, index3
-    draw_walls2:
-        mov ch, [si]      
-        mov cl, [si+1]    
-        mov dh, [si+2]    
-        mov dl, [si+3]    
-        add si, 4            
-        mov ah, 6        
-        mov al, 0         
-        mov bh, 0FFh      
-        int 10h            
-        cmp si,104
-        jl draw_walls2
-ret
-endp
-border4 proc
-    mov ah, 0
-    mov al, 3
-    int 10h
-
-    lea si, index4
-    draw_walls3:
-        mov ch, [si]      
-        mov cl, [si+1]    
-        mov dh, [si+2]    
-        mov dl, [si+3]    
-        add si, 4            
-        mov ah, 6        
-        mov al, 0         
-        mov bh, 0FFh      
-        int 10h            
-        cmp si,151
-        jl draw_walls3
-ret
-endp   
-
-
-
-;check va cham
-checkWallCollision:
-    
-    mov al, [snack]     
-    mov bl, [snack+1]    
-
-    lea si, index3      
-    mov cx, (56 / 4)     
-
-collisionLoop:
-    mov dh, [si]         
-    mov dl, [si+1]       
-    mov ah, [si+2]       
-    mov bh, [si+3]       
-
-   
-    cmp bl, dh
-    jb nextWall
-    cmp bl, ah
-    ja nextWall
-
-    
-    cmp al, dl
-    jb nextWall
-    cmp al, bh
-    ja nextWall
-
-   
-    call game_over
-
-nextWall:
-    add si, 4            
-    loop collisionLoop   
-
-    ret 
-game_over:
-    mov ah, 02h          
-    mov bh, 0
-    mov dh, 12          
-    mov dl, 30           
-    int 10h
-
-    mov ah, 09h          
-    lea dx, gameOverMsg
-    int 21h
-
-    mov ah, 4Ch         
-    int 21h  
-                 
-
-end start
+END START
+Footer
+© 2025 GitHub, Inc.
+Footer navigation
+Terms
+Privacy
+Security
+S
