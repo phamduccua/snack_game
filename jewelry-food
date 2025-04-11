@@ -1,0 +1,73 @@
+ORG 100h
+
+; =========== DATA SEGMENT ===========
+FOOD_X       DB 20   ; Toa do X mac dinh
+FOOD_Y       DB 10   ; Toa do Y mac dinh
+FOOD_ICON    DB 4    ; Mac dinh la kim cuong (?)
+FOOD_COLOR   DB 14   ; Mac dinh la mau vang
+
+; =========== CODE SEGMENT ===========
+START:
+    ; Khoi tao che do van ban 80x25
+    MOV AX, 03h
+    INT 10h
+
+    CALL GENERATE_RANDOM_FOOD  ; Tao vi tri thuc an
+    CALL DISPLAY_FOOD          ; Hien thi thuc an
+
+    ; Cho nhan phim de thoat
+    MOV AH, 0
+    INT 16h
+    INT 20h
+
+; =========== TAO VI TRI THUC AN ===========
+GENERATE_RANDOM_FOOD PROC
+    MOV AH, 00h     ; Goi timer
+    INT 1Ah         ; BIOS - Get System Time
+    MOV AL, DL      ; Su dung gia tri thoi gian lam seed
+    AND AL, 0FFh    ; Gioi han gia tri ngau nhien tu 0 den 255
+
+    ; Phan phoi xac suat
+    ; Kim cuong (10%): 0-25
+    ; Vang (30%): 26-55
+    ; Bac (60%): 56-255
+
+    CMP AL, 25       ; Kiem tra xem AL co trong khoang 0-25 (10% khong?)
+    JLE SET_DIAMOND  ; Neu AL <= 25, chon kim cuong
+
+    CMP AL, 55       ; Kiem tra xem AL co trong khoang 26-55 (30% khong?)
+    JLE SET_GOLD     ; Neu AL <= 55, chon vang
+
+    ; Neu khong, chon bac (60%)
+    MOV FOOD_ICON, 127    ; Hinh kim cuong (?)
+    MOV FOOD_COLOR, 8   ; Mau bac
+    RET
+
+SET_GOLD:
+    MOV FOOD_ICON, 254  ; Hinh thoi vang (¦)
+    MOV FOOD_COLOR, 14  ; Mau vang
+    RET
+
+SET_DIAMOND:
+    MOV FOOD_ICON, 4    ; Hinh kim cuong (?)
+    MOV FOOD_COLOR, 15  ; Mau kim cuong (sang)
+    RET
+GENERATE_RANDOM_FOOD ENDP
+
+; =========== HIEN THI THUC AN ===========
+DISPLAY_FOOD PROC
+    MOV AH, 02h          ; Dat con tro
+    MOV BH, 0            ; Trang hien thi 0
+    MOV DH, FOOD_Y       ; Hang (Y)
+    MOV DL, FOOD_X       ; Cot (X)
+    INT 10h
+
+    MOV AH, 09h          ; In ky tu
+    MOV AL, FOOD_ICON    ; Ky tu (? hoac ¦)
+    MOV BL, FOOD_COLOR   ; Mau (Bac hoac Vang)
+    MOV CX, 1            ; So lan in
+    INT 10h
+    RET
+DISPLAY_FOOD ENDP
+
+END START
