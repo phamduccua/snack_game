@@ -56,7 +56,14 @@ main proc
     call instruction1 
     mov ah, 0
     int 16h
-    
+    mov ah, 6       
+    mov al, 0       
+    mov bh, 07h    
+    mov ch, 0       
+    mov cl, 0       
+    mov dh, 24    
+    mov dl, 79
+    int 10h 
     call chosegameplay
     mov ah, 6       
     mov al, 0       
@@ -66,123 +73,12 @@ main proc
     mov dh, 24    
     mov dl, 79
     int 10h 
-    call start
+
     mov ah,4ch
     int 21h
     
     ret
 main endp  
-chosegameplay proc
-    mov ah, 6       
-    mov al, 0       
-    mov bh, 07h    
-    mov ch, 0       
-    mov cl, 0       
-    mov dh, 24    
-    mov dl, 79
-    int 10h 
-    
-    call border1    
-    lea si, seclect
-    mov di, 160 * 3 + 30 * 2
-    call print_string 
-    
-    lea si, gameplay1
-    mov di, 160 * 7 + 30 * 2
-    call print_string 
-    
-    lea si, gameplay2
-    mov di, 160 * 9 + 30 * 2
-    call print_string
-    
-    
-    mov ah, 0
-    int 16h
-    
-    cmp al,'1'
-    je gmpl1
-    
-   
-chosegameplay endp 
-gmpl1 proc
-    mov ah, 6       
-    mov al, 0       
-    mov bh, 07h    
-    mov ch, 0       
-    mov cl, 0       
-    mov dh, 24    
-    mov dl, 79
-    int 10h 
-    
-    call border1
-    lea si, seclect1
-    mov di, 160 * 3 + 30 * 2
-    call print_string 
-    
-    lea si, m1
-    mov di, 160 * 5 + 30 * 2
-    call print_string
-
-    lea si, m2
-    mov di, 160 * 7 + 30 * 2
-    call print_string 
-
-    lea si, m3
-    mov di, 160 * 9 + 30 * 2
-    call print_string
-                       
-    lea si, m4
-    mov di, 160 * 11 + 30 * 2
-    call print_string 
-    
-    mov ah, 0
-    int 16h
-    
-    cmp al,1
-    je hinh1
-    hinh1:
-        call border3 
-        lea si,index3
-        mov cx,56/4
-        
-gmpl1 endp
-
-gmpl2 proc
-    mov ah, 6       
-    mov al, 0       
-    mov bh, 07h    
-    mov ch, 0       
-    mov cl, 0       
-    mov dh, 24    
-    mov dl, 79
-    int 10h 
-    
-    call border1
-    lea si, seclect2
-    mov di, 160 * 3 + 30 * 2
-    call print_string 
-    
-    lea si, m1
-    mov di, 160 * 5 + 30 * 2
-    call print_string
-
-    lea si, m2
-    mov di, 160 * 7 + 30 * 2
-    call print_string 
-
-    lea si, m3
-    mov di, 160 * 9 + 30 * 2
-    call print_string
-                       
-    lea si, m4
-    mov di, 160 * 11 + 30 * 2
-    call print_string 
-    
-    mov ah, 0
-    int 16h
-gmpl2 endp
-    
-
 instruction1 proc 
     mov ah, 6       
     mov al, 0       
@@ -249,9 +145,6 @@ main_menu proc
     mov dh, 24    
     mov dl, 79
     int 10h 
-     
-    call border1
-    
     lea si, header
     mov di, 160 * 5 + 30 * 2
     call print_string
@@ -288,170 +181,172 @@ next_char:
 done:
     ret
 print_string endp
-start proc
-    call border3
-    mov [snack], head_x
-    mov [snack+1], head_y
-    mov [snack+2], 4
-    mov [snack+3], 3
-    mov [snack+4], 3
-    mov [snack+5], 3      
-start endp
-mainLoop proc
+gmpl1 proc
+    mov ah, 6       
+    mov al, 0       
+    mov bh, 07h    
+    mov ch, 0       
+    mov cl, 0       
+    mov dh, 24    
+    mov dl, 79
+    int 10h 
     
-    call eraseOldTail  
-    call moveSnack 
+    call border1
+    lea si, seclect1
+    mov di, 160 * 3 + 30 * 2
+    call print_string 
+    
+    lea si, m1
+    mov di, 160 * 5 + 30 * 2
+    call print_string
+
+    lea si, m2
+    mov di, 160 * 7 + 30 * 2
+    call print_string 
+
+    lea si, m3
+    mov di, 160 * 9 + 30 * 2
+    call print_string
+                       
+    lea si, m4
+    mov di, 160 * 11 + 30 * 2
+    call print_string 
+    
+    mov ah, 0
+    int 16h
+     cmp al, '1'
+    je select_map1
+    cmp al, '2'
+    je select_map2
+    cmp al, '3'
+    je select_map3
+    cmp al, '4'
+    je select_map4
+    jmp chosegameplay_end  
+    select_map1:
+        mov seclectmapindex, 1
+        jmp chosegameplay_end
+    
+    select_map2:
+        mov seclectmapindex, 2
+        jmp chosegameplay_end
+    
+    select_map3:
+        mov seclectmapindex, 3
+        jmp chosegameplay_end
+    
+    select_map4:
+        mov seclectmapindex, 4
+        jmp chosegameplay_end 
+endp
+gmpl2 proc
+    mov ah, 6       
+    mov al, 0       
+    mov bh, 07h    
+    mov ch, 0       
+    mov cl, 0       
+    mov dh, 24    
+    mov dl, 79
+    int 10h 
+    
+    call border1
+    lea si, seclect2
+    mov di, 160 * 3 + 30 * 2
+    call print_string 
+    
+    lea si, m1
+    mov di, 160 * 5 + 30 * 2
+    call print_string
+
+    lea si, m2
+    mov di, 160 * 7 + 30 * 2
+    call print_string 
+
+    lea si, m3
+    mov di, 160 * 9 + 30 * 2
+    call print_string
+                       
+    lea si, m4
+    mov di, 160 * 11 + 30 * 2
+    call print_string 
+    
+    mov ah, 0
+    int 16h
+    
+    jmp chosegameplay_end
+    cmp al, '1'
+    je 1select_map1
+    cmp al, '2'
+    je 1select_map2
+    cmp al, '3'
+    je 1select_map3
+    cmp al, '4'
+    je 1select_map4
+    jmp chosegameplay_end  
+    1select_map1:
+        mov seclectmapindex, 1
+        jmp chosegameplay_end
+    
+    1select_map2:
+        mov seclectmapindex, 2
+        jmp chosegameplay_end
+    
+    1select_map3:
+        mov seclectmapindex, 3
+        jmp chosegameplay_end
+    
+    1select_map4:
+        mov seclectmapindex, 4
+        jmp chosegameplay_end  
+endp
+chosegameplay proc
+    mov ah, 6       
+    mov al, 0       
+    mov bh, 07h    
+    mov ch, 0       
+    mov cl, 0       
+    mov dh, 24    
+    mov dl, 79
+    call border1    
+
+    lea si, seclect
+    mov di, 160 * 3 + 30 * 2
+    call print_string 
+
+    lea si, gameplay1
+    mov di, 160 * 7 + 30 * 2
+    call print_string 
+
+    lea si, gameplay2
+    mov di, 160 * 9 + 30 * 2
+    call print_string
+    
+    mov ah, 0
+    int 16h
+
+    cmp al, '1'
+    je call_gmpl1
+    
+    cmp al, '2'
+    je call_gmpl2
+    
+    call_gmpl1:
+        call gmpl1
+        jmp chosegameplay_end
+    
+    call_gmpl2:
+        call gmpl2
+        jmp chosegameplay_end
+ 
+    
      
-    call drawSnack  
-    call readKey          
-    call checkWallCollision    
-    jmp mainLoop
-mainLoop endp
-readKey proc
-    mov ah, 01h   
-    int 16h
-    jz doneReadKey  
+    chosegameplay_end:
+    ret
+    
+ 
+    
 
-    mov ah, 00h
-    int 16h
-
-    cmp al, 00h   
-    jne checkNormalKey
-
-    cmp ah, 48h   
-    je moveUp
-    cmp ah, 50h   
-    je moveDown
-    cmp ah, 4Bh   
-    je moveLeft
-    cmp ah, 4Dh   
-    je moveRight
-    ret
-readKey endp
-checkNormalKey proc
-    cmp al, 1Bh   
-    je exitProgram
-    doneReadKey:
-    ret
-checkNormalKey endp
-exitProgram proc
-    mov ax, 4C00h
-    int 21h
-exitProgram endp
-moveRight proc
-    cmp direction, 3
-    je conitnue
-    mov direction, 1  
-    ret      
-moveRight endp
-moveDown proc 
-    cmp direction, 4
-    je  conitnue
-    mov direction, 2
-    ret      
-moveDown endp
-moveLeft proc
-    cmp direction, 1
-    je conitnue
-    mov direction, 3
-    ret      
-moveLeft endp
-moveUp proc
-    cmp direction, 2
-    je conitnue
-    mov direction, 4
-    ret    
-moveUp endp
-conitnue proc
-    ret
-conitnue endp
-moveSnack proc    
-    mov si, s_size * 2 - 2
-moveSnack endp      
-moveBody proc   
-    cmp si, 1 
-    jl doneMove
-    mov al, [snack + si - 2]  
-    mov [snack + si], al      
-    mov al, [snack + si - 1]   
-    mov [snack + si + 1], al   
-    sub si, 2
-    jmp moveBody
-moveBody endp        
-doneMove proc 
-    cmp direction, 1
-    je moveRightHead
-    cmp direction, 2
-    je moveDownHead
-    cmp direction, 3
-    je moveLeftHead
-    cmp direction, 4
-    je moveUpHead
-    ret
-doneMove endp
-moveRightHead proc
-    inc byte ptr [snack]
-    ret           
-moveRightHead endp
-moveDownHead proc
-    inc byte ptr [snack+1]
-    ret          
-moveDownHead endp
-moveLeftHead proc
-    dec byte ptr [snack]
-    ret          
-moveLeftHead endp
-moveUpHead proc
-    dec byte ptr [snack+1]
-    ret        
-moveUpHead endp
-
-eraseOldTail proc
-    mov ah, 02h
-    mov bh, 0
-    mov dh, [snack + (s_size * 2) - 1]  
-    mov dl, [snack + (s_size * 2) - 2]  
-    int 10h
-    mov ah, 09h
-    mov al, ' '
-    mov bl, 0FH
-    mov cx, 1
-    int 10h
-    ret
-eraseOldTail endp
-drawSnack proc  
-    mov si, s_size * 2
-drawSnack endp
-drawBody proc
-    cmp si, 2
-    jl drawHead
-    mov ah, 02h
-    mov bh, 0
-    mov dh, [snack + si - 1]
-    mov dl, [snack + si - 2]
-    int 10h
-    mov ah, 09h
-    mov al, '*'
-    mov bl, 0FH
-    mov cx, 1
-    int 10h
-    sub si, 2
-    jmp drawBody
-drawBody endp
-drawHead proc 
-    mov ah, 02h
-    mov bh, 0
-    mov dh, [snack+1]
-    mov dl, [snack]
-    int 10h
-    mov ah, 09h
-    mov al, 'O'
-    mov bl, 0FH
-    mov cx, 1
-    int 10h
-    ret
-drawHead endp 
-;call border
+chosegameplay endp  
 border1 proc
     mov ah, 0
     mov al, 3
@@ -470,112 +365,5 @@ border1 proc
         int 10h            
         cmp si,17
         jl draw_walls
-ret  
-endp
-border2 proc
-    mov ah, 0
-    mov al, 3
-    int 10h
-
-    lea si, index2
-    draw_walls1:
-        mov ch, [si]      
-        mov cl, [si+1]    
-        mov dh, [si+2]    
-        mov dl, [si+3]    
-        add si, 4            
-        mov ah, 6        
-        mov al, 0         
-        mov bh, 0FFh      
-        int 10h            
-        cmp si,48
-        jl draw_walls1
 ret
-endp
-border3 proc
-    mov ah, 0
-    mov al, 3
-    int 10h
-
-    lea si, index3
-    draw_walls2:
-        mov ch, [si]      
-        mov cl, [si+1]    
-        mov dh, [si+2]    
-        mov dl, [si+3]    
-        add si, 4            
-        mov ah, 6        
-        mov al, 0         
-        mov bh, 0FFh      
-        int 10h            
-        cmp si,104
-        jl draw_walls2
-ret
-endp
-border4 proc
-    mov ah, 0
-    mov al, 3
-    int 10h
-
-    lea si, index4
-    draw_walls3:
-        mov ch, [si]      
-        mov cl, [si+1]    
-        mov dh, [si+2]    
-        mov dl, [si+3]    
-        add si, 4            
-        mov ah, 6        
-        mov al, 0         
-        mov bh, 0FFh      
-        int 10h            
-        cmp si,151
-        jl draw_walls3
-ret
-endp  
-checkWallCollision proc
-    mov al, [snack]        
-    mov bl, [snack+1]     
-
-          
-
-checkLoop:
-    mov dh, [si]           
-    mov dl, [si+1]        
-    mov ah, [si+2]        
-    mov bh, [si+3]         
-
-    
-    cmp bl, dh
-    jb nextBlock
-    cmp bl, ah
-    ja nextBlock
-
-    cmp al, dl
-    jb nextBlock
-    cmp al, bh
-    ja nextBlock
-
-    call game_over
-    ret
-
-nextBlock:
-    add si, 4
-    loop checkLoop
-    ret
-checkWallCollision endp
-
-game_over proc
-    mov ah, 02h          
-    mov bh, 0
-    mov dh, 12          
-    mov dl, 30           
-    int 10h
-
-    mov ah, 09h          
-    lea dx, gameOverMsg
-    int 21h
-
-    mov ah, 4Ch         
-    int 21h   
-game_over endp
-
+border1 endp  
