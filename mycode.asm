@@ -1,4 +1,4 @@
-.model small
+                                                       .model small
 .stack 100h
 .data
     lives db 3
@@ -15,7 +15,7 @@
     direction db ?
     gameOverMsg db 'GAME OVER!', 0Dh, 0Ah, '$'
     
-    header db "Snake Game", 0
+   header db "Snake Game", 0
     main1  db "This game made by group 3", 0
     main2  db "For Posts and Telecommunications Institute of Technology", 0
     main3  db "Press any key to start", 0
@@ -36,7 +36,7 @@
     m3 db "Map 3",0
     m4 db "Map 4",0
     seclect2 db "You choose gameplay challenge. Please choose map :",0
-    seclectmapindex db 0       
+    seclectmapindex db 0      
 .code
 start:
     mov ax, @data
@@ -56,7 +56,14 @@ start:
     call instruction1 
     mov ah, 0
     int 16h
-    
+    mov ah, 6       
+    mov al, 0       
+    mov bh, 07h    
+    mov ch, 0       
+    mov cl, 0       
+    mov dh, 24    
+    mov dl, 79
+    int 10h 
     call chosegameplay
     mov ah, 6       
     mov al, 0       
@@ -66,122 +73,11 @@ start:
     mov dh, 24    
     mov dl, 79
     int 10h 
-    call start
+
     mov ah,4ch
     int 21h
     
     ret
-chosegameplay proc
-    mov ah, 6       
-    mov al, 0       
-    mov bh, 07h    
-    mov ch, 0       
-    mov cl, 0       
-    mov dh, 24    
-    mov dl, 79
-    int 10h 
-    
-    call border1    
-    lea si, seclect
-    mov di, 160 * 3 + 30 * 2
-    call print_string 
-    
-    lea si, gameplay1
-    mov di, 160 * 7 + 30 * 2
-    call print_string 
-    
-    lea si, gameplay2
-    mov di, 160 * 9 + 30 * 2
-    call print_string
-    
-    
-    mov ah, 0
-    int 16h
-    
-    cmp al,'1'
-    je gmpl1
-    
-   
-chosegameplay endp 
-gmpl1 proc
-    mov ah, 6       
-    mov al, 0       
-    mov bh, 07h    
-    mov ch, 0       
-    mov cl, 0       
-    mov dh, 24    
-    mov dl, 79
-    int 10h 
-    
-    call border1
-    lea si, seclect1
-    mov di, 160 * 3 + 30 * 2
-    call print_string 
-    
-    lea si, m1
-    mov di, 160 * 5 + 30 * 2
-    call print_string
-
-    lea si, m2
-    mov di, 160 * 7 + 30 * 2
-    call print_string 
-
-    lea si, m3
-    mov di, 160 * 9 + 30 * 2
-    call print_string
-                       
-    lea si, m4
-    mov di, 160 * 11 + 30 * 2
-    call print_string 
-    
-    mov ah, 0
-    int 16h
-    
-    cmp al,1
-    je hinh1
-    hinh1:
-        call border3 
-        lea si,index3
-        mov cx,56/4
-        
-gmpl1 endp
-
-gmpl2 proc
-    mov ah, 6       
-    mov al, 0       
-    mov bh, 07h    
-    mov ch, 0       
-    mov cl, 0       
-    mov dh, 24    
-    mov dl, 79
-    int 10h 
-    
-    call border1
-    lea si, seclect2
-    mov di, 160 * 3 + 30 * 2
-    call print_string 
-    
-    lea si, m1
-    mov di, 160 * 5 + 30 * 2
-    call print_string
-
-    lea si, m2
-    mov di, 160 * 7 + 30 * 2
-    call print_string 
-
-    lea si, m3
-    mov di, 160 * 9 + 30 * 2
-    call print_string
-                       
-    lea si, m4
-    mov di, 160 * 11 + 30 * 2
-    call print_string 
-    
-    mov ah, 0
-    int 16h
-gmpl2 endp
-    
-
 instruction1 proc 
     mov ah, 6       
     mov al, 0       
@@ -248,9 +144,6 @@ main_menu proc
     mov dh, 24    
     mov dl, 79
     int 10h 
-     
-    call border1
-    
     lea si, header
     mov di, 160 * 5 + 30 * 2
     call print_string
@@ -286,7 +179,173 @@ next_char:
     jmp next_char
 done:
     ret
-print_string endp       
+print_string endp
+gmpl1 proc
+    mov ah, 6       
+    mov al, 0       
+    mov bh, 07h    
+    mov ch, 0       
+    mov cl, 0       
+    mov dh, 24    
+    mov dl, 79
+    int 10h 
+    
+    call border1
+    lea si, seclect1
+    mov di, 160 * 3 + 30 * 2
+    call print_string 
+    
+    lea si, m1
+    mov di, 160 * 5 + 30 * 2
+    call print_string
+
+    lea si, m2
+    mov di, 160 * 7 + 30 * 2
+    call print_string 
+
+    lea si, m3
+    mov di, 160 * 9 + 30 * 2
+    call print_string
+                       
+    lea si, m4
+    mov di, 160 * 11 + 30 * 2
+    call print_string 
+    
+    mov ah, 0
+    int 16h
+     cmp al, '1'
+    je select_map1
+    cmp al, '2'
+    je select_map2
+    cmp al, '3'
+    je select_map3
+    cmp al, '4'
+    je select_map4
+    jmp chosegameplay_end  
+    select_map1:
+        mov seclectmapindex, 1
+        jmp chosegameplay_end
+    
+    select_map2:
+        mov seclectmapindex, 2
+        jmp chosegameplay_end
+    
+    select_map3:
+        mov seclectmapindex, 3
+        jmp chosegameplay_end
+    
+    select_map4:
+        mov seclectmapindex, 4
+        jmp chosegameplay_end 
+endp
+gmpl2 proc
+    mov ah, 6       
+    mov al, 0       
+    mov bh, 07h    
+    mov ch, 0       
+    mov cl, 0       
+    mov dh, 24    
+    mov dl, 79
+    int 10h 
+    
+    call border1
+    lea si, seclect2
+    mov di, 160 * 3 + 30 * 2
+    call print_string 
+    
+    lea si, m1
+    mov di, 160 * 5 + 30 * 2
+    call print_string
+
+    lea si, m2
+    mov di, 160 * 7 + 30 * 2
+    call print_string 
+
+    lea si, m3
+    mov di, 160 * 9 + 30 * 2
+    call print_string
+                       
+    lea si, m4
+    mov di, 160 * 11 + 30 * 2
+    call print_string 
+    
+    mov ah, 0
+    int 16h
+    
+    jmp chosegameplay_end
+    cmp al, '1'
+    je 1select_map1
+    cmp al, '2'
+    je 1select_map2
+    cmp al, '3'
+    je 1select_map3
+    cmp al, '4'
+    je 1select_map4
+    jmp chosegameplay_end  
+    1select_map1:
+        mov seclectmapindex, 1
+        jmp chosegameplay_end
+    
+    1select_map2:
+        mov seclectmapindex, 2
+        jmp chosegameplay_end
+    
+    1select_map3:
+        mov seclectmapindex, 3
+        jmp chosegameplay_end
+    
+    1select_map4:
+        mov seclectmapindex, 4
+        jmp chosegameplay_end  
+endp
+chosegameplay proc
+    mov ah, 6       
+    mov al, 0       
+    mov bh, 07h    
+    mov ch, 0       
+    mov cl, 0       
+    mov dh, 24    
+    mov dl, 79
+    call border1    
+
+    lea si, seclect
+    mov di, 160 * 3 + 30 * 2
+    call print_string 
+
+    lea si, gameplay1
+    mov di, 160 * 7 + 30 * 2
+    call print_string 
+
+    lea si, gameplay2
+    mov di, 160 * 9 + 30 * 2
+    call print_string
+    
+    mov ah, 0
+    int 16h
+
+    cmp al, '1'
+    je call_gmpl1
+    
+    cmp al, '2'
+    je call_gmpl2
+    
+    call_gmpl1:
+        call gmpl1
+        jmp chosegameplay_end
+    
+    call_gmpl2:
+        call gmpl2
+        jmp chosegameplay_end
+ 
+    
+     
+    chosegameplay_end:
+    ret
+    
+ 
+    
+
+chosegameplay endp         
 begin: 
     mov direction, 1
     call border3
