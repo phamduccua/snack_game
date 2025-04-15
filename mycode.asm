@@ -1,7 +1,7 @@
 .model small
 .stack 100h
 .data
-    s_size equ 3        
+    s_size db 3        
     snack 200 dup(0)    
     head_x equ 5         
     head_y equ 3         
@@ -10,12 +10,17 @@
 start:
     mov ax, @data
     mov ds, ax
-    mov [snack], head_x
-    mov [snack+1], head_y
-    mov [snack+2], 4
-    mov [snack+3], 3
-    mov [snack+4], 3
-    mov [snack+5], 3      
+    mov al, head_x
+    mov [snack], al
+    mov al, head_y
+    mov [snack+1], al
+    
+    mov al, 4
+    mov [snack+2], al
+    mov al, 3
+    mov [snack+3], al
+    mov [snack+4], al
+    mov [snack+5], al      
 
 mainLoop:
     call eraseOldTail  
@@ -79,7 +84,11 @@ conitnue:
     ret
 
 moveSnack:    
-    mov si, s_size * 2 - 2  
+    mov si, 0
+    mov cl, s_size
+    shl cl, 1
+    sub cl, 2
+    mov si, cx  
 moveBody:   
     cmp si, 1 
     jl doneMove
@@ -115,20 +124,25 @@ moveUpHead:
     ret
 
 eraseOldTail:
+    mov cl, s_size
+    shl cl, 1
+    mov si, cx
     mov ah, 02h
     mov bh, 0
-    mov dh, [snack + (s_size * 2) - 1]  
-    mov dl, [snack + (s_size * 2) - 2]  
+    mov dh, [snack + si - 1]
+    mov dl, [snack + si - 2]
     int 10h
     mov ah, 09h
     mov al, ' '
-    mov bl, 0FH
+    mov bl, 0Fh
     mov cx, 1
     int 10h
     ret
 
 drawSnack:  
-    mov si, s_size * 2
+    mov cl, s_size
+    shl cl, 1
+    mov si, cx
 
 drawBody:
     cmp si, 2
