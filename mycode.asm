@@ -1,7 +1,7 @@
 .model small
 .stack 100h
 .data
-    lives db 3
+    lives db 1
     index1 db 1,0,1,80,3,0,24,0,24,0,24,79,1,79,24,79
     index2 db 1,0,1,80,3,0,24,0,24,0,24,79,1,79,24,79,5,10,10,10,10,10,10,40,5,40,10,40,15,30,20,35
     index3 db 1,0,1,79,5,10,10,10,10,10,10,40,5,40,10,40,15,30,20,35,5,50,5,70,5,70,15,70,15,70,15,55,15,55,10,55,24,0,24,79,1,0,24,0,1,79,24,79,12,2,12,3,22,77,22,78
@@ -41,7 +41,7 @@
 start:
     mov ax, @data
     mov ds, ax
-    
+menu_start:
     mov ax, 0b800h
     ;0b800h la dia chi segment cua vung nho video
     mov es, ax
@@ -72,6 +72,7 @@ start:
     mov cl, 0       
     mov dh, 24    
     mov dl, 79
+    
     int 10h          
 begin: 
     mov direction, 1
@@ -439,7 +440,7 @@ begin:
     
         ret 
     game_over:   
-        cmp lives, 0
+        cmp lives, 1 
         jg restart
         mov ah, 02h          
         mov bh, 0
@@ -450,9 +451,13 @@ begin:
         mov ah, 09h          
         lea dx, gameOverMsg
         int 21h
+        
+        mov ah, 0
+        int 16h
+        
+        call menu_start
     
-        mov ah, 4Ch         
-        int 21h 
+        ret  
     restart:   
         sub lives, 1
         call clearSnack
@@ -710,9 +715,5 @@ chosegameplay proc
      
     chosegameplay_end:
     ret
-    
- 
-    
-
 chosegameplay endp                 
 end start
